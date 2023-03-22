@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vc-authn.fullname" . }}-controller-deployment
+  labels:
+    io.kompose.service: vc-authn-controller-deployment
+  {{- include "vc-authn.labels" . | nindent 4 }}
+  annotations:
+    kompose.version: 1.26.1 (a9d05d509)
+spec:
+  replicas: {{ .Values.controllerDeployment.replicas }}
+  selector:
+    matchLabels:
+      io.kompose.service: vc-authn-controller-deployment
+    {{- include "vc-authn.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        io.kompose.service: vc-authn-controller-deployment
+      {{- include "vc-authn.selectorLabels" . | nindent 8 }}
+      annotations:
+        kompose.version: 1.26.1 (a9d05d509)
+    spec:
+      containers:
+      - args:
+        - -c
+        - |
+          dotnet VCAuthn.dll
+        command:
+        - /bin/bash
+        env:
+        - name: IdentityServer__ConnectionStrings__Database
+          valueFrom:
+            secretKeyRef:
+              key: IDENTITY_SERVER_DB_CONNECTION_STRING
+              name: {{ include "vc-authn.fullname" . }}-controller-secret
+        - name: UrlShortenerService__ConnectionStrings__Database
+          valueFrom:
+            secretKeyRef:
+              key: IDENTITY_SERVER_DB_CONNECTION_STRING
+              name: {{ include "vc-authn.fullname" . }}-controller-secret
+        - name: SessionStorageService__ConnectionStrings_Database
+          valueFrom:
+            secretKeyRef:
+              key: IDENTITY_SERVER_DB_CONNECTION_STRING
+              name: {{ include "vc-authn.fullname" . }}-controller-secret
+        - name: IdentityServer__CertificateFilename
+          valueFrom:
+            secretKeyRef:
+              key: CONTROLLER_CERTIFICATE_FILE_PATH
+              name: {{ include "vc-authn.fullname" . }}-controller-secret
+        - name: IdentityServer__PublicOrigin
+          valueFrom:
+            secretKeyRef:
+              key: IDENTITY_SERVER_URL
+              name: {{ include "vc-authn.fullname" . }}-controller-secret
+        - name: UrlShortenerService__BaseUrl
+          value: $(IDENTITY_SERVER_URL)/url
+        - name: IdentityServer__PollInterval
+          valueFrom:
+            secretKeyRef:
+              key: IDENTITY_SERVER_POLL_INTERVAL
+              name: {{ include "vc-authn.fullname" . }}-controller-secret
+        - name: ApiKey
+          valueFrom:
+            secretKeyRef:
+              key: IDENTITY_SERVER_API_KEY
+              name: {{ include "vc-authn.fullname" . }}-controller-secret
+        - name: ACAPY__AdminUrl
+          valueFrom:
+            secretKeyRef:
+              key: ACAPY_ADMIN_URL
+              name: {{ include "vc-authn.fullname" . }}-agent-secret
+        - name: ACAPY__AdminURLApiKey
+          valueFrom:
+            secretKeyRef:
+              key: ACAPY_ADMIN_API_KEY
+              name: {{ include "vc-authn.fullname" . }}-agent-secret
+        - name: ACAPY__AgentUrl
+          valueFrom:
+            secretKeyRef:
+              key: ACAPY_ENDPOINT
+              name: {{ include "vc-authn.fullname" . }}-agent-secret
+        - name: SwaggerEnabled
+          valueFrom:
+            secretKeyRef:
+              key: SWAGGER_ENABLED
+              name: {{ include "vc-authn.fullname" . }}-controller-secret
+        - name: ASPNETCORE_URLS
+          valueFrom:
+            secretKeyRef:
+              key: ASPNETCORE_URLS
+              name: {{ include "vc-authn.fullname" . }}-controller-secret
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ .Values.kubernetesClusterDomain }}
+        image: {{ .Values.controllerDeployment.vcAuthnControllerDeployment.image.repository
+          }}:{{ .Values.controllerDeployment.vcAuthnControllerDeployment.image.tag | default
+          .Chart.AppVersion }}
+        name: vc-authn-controller-deployment
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        resources: {{- toYaml .Values.controllerDeployment.vcAuthnControllerDeployment.resources
+          | nindent 10 }}
+        volumeMounts:
+        - mountPath: /controller-data/vc-authn-controller-secret-key/vc-authn-controller.pfx
+          name: vc-authn-controller-secret-key-data
+          readOnly: true
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      nodeSelector:
+        node-role.kubernetes.io/master: "true"
+      restartPolicy: Always
+      volumes:
+      - name: vc-authn-controller-secret-key-data
+        secret:
+          secretName: {{ include "vc-authn.fullname" . }}-controller-secret-key

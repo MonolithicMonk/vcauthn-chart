@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vc-authn.fullname" . }}-controller-db-service
+  labels:
+    io.kompose.service: vc-authn-controller-db-service
+  {{- include "vc-authn.labels" . | nindent 4 }}
+  annotations:
+    kompose.cmd: kompose convert -f agent.yml
+    kompose.version: 1.26.1 (a9d05d509)
+spec:
+  type: {{ .Values.controllerDbService.type }}
+  selector:
+    io.kompose.service: vc-authn-controller-db-deployment
+  {{- include "vc-authn.selectorLabels" . | nindent 4 }}
+  ports:
+	{{- .Values.controllerDbService.ports | toYaml | nindent 2 -}}
