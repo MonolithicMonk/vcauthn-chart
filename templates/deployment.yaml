@@ -37,6 +37,55 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
+          args:
+          - -c
+          - |
+            dotnet VCAuthn.dll
+          command:
+          - /bin/bash
+          env:
+          - name: IdentityServer__PollInterval
+            value: {{ .Values.configuration.pollInterval | quote }}
+          - name: ApiKey
+            valueFrom:
+              secretKeyRef:
+                key: idenity-server-api-key
+                name: {{ include "vcauthn.fullname" . }}-config
+          - name: ACAPY__AdminUrl
+            value: {{ .Values.configuration.acapyAdminUrl }}
+          - name: ACAPY__AdminURLApiKey
+            valueFrom:
+              secretKeyRef:
+                key: acapy-admin-api-key
+                name: {{ include "vcauthn.fullname" . }}-config
+          - name: POSTGRESQL_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: postgresql-username
+                name: {{ include "vcauthn.fullname" . }}-config
+          - name: POSTGRESQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: postgresql-password
+                name: {{ include "vcauthn.fullname" . }}-config
+          - name: ACAPY__AgentUrl
+            value: {{ .Values.configuration.acapyAgentUrl }}
+          - name: SwaggerEnabled
+            value: {{ .Values.configuration.swaggerEnabled | quote }}
+          - name: ASPNETCORE_URLS
+            value: {{ .Values.configuration.aspNetCoreUrls }}
+          - name: IdentityServer__ConnectionStrings__Database
+            value: "Host={{ .Values.configuration.postgresql.host }};Port={{ .Values.configuration.postgresql.port }};Database={{ .Values.configuration.postgresql.database }};Username=$(POSTGRESQL_USERNAME);Password=$(POSTGRESQL_PASSWORD)"
+          - name: UrlShortenerService__ConnectionStrings__Database
+            value: "Host={{ .Values.configuration.postgresql.host }};Port={{ .Values.configuration.postgresql.port }};Database={{ .Values.configuration.postgresql.database }};Username=$(POSTGRESQL_USERNAME);Password=$(POSTGRESQL_PASSWORD)"
+          - name: SessionStorageService__ConnectionStrings_Database
+            value: "Host={{ .Values.configuration.postgresql.host }};Port={{ .Values.configuration.postgresql.port }};Database={{ .Values.configuration.postgresql.database }};Username=$(POSTGRESQL_USERNAME);Password=$(POSTGRESQL_PASSWORD)"
+          - name: IdentityServer__CertificateFilename
+            value: {{ .Values.configuration.certificateFileName }}
+          - name: IdentityServer__PublicOrigin
+            value: {{ .Values.configuration.identityServerUrl }}
+          - name: UrlShortenerService__BaseUrl
+            value: {{ .Values.configuration.identityServerUrl }}/url
           livenessProbe:
             httpGet:
               path: /
@@ -47,6 +96,14 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /controller-data
+              name: vcauthn-secret-key-data
+              readOnly: true
+      volumes:
+      - name: vcauthn-secret-key-data
+        secret:
+          secretName: {{ include "vcauthn.fullname" . }}-rsa
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
