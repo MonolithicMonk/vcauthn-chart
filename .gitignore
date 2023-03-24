@@ -1,2 +1,6 @@
 # ignore local overide files for testing
 overide.yaml
+
+# ignore local diode keys for testing
+YUGA
+YUGA.bck
