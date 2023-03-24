@@ -95,9 +95,7 @@ configuration:
   swaggerEnabled: true
   postgresql: 
     host: postgresql.default.svc.cluster.local 
-    # host: yb-tserver-service.default.svc.cluster.local 
-    port: 5433
+    port: 5432
     password: newpassword
     username: newuser
     database: databases
-    # database: vcauthn_db_20230322184115

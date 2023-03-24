@@ -5,13 +5,13 @@
 replicaCount: 1
 
 image:
-  repository: cloud.canister.io:5000/dgateled/vc-authn-oidc-controller
+  repository: ""
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 0.0.3
+  tag: ""
 
-imagePullSecrets: 
-  - name: registry-pullsecrets
+imagePullSecrets: []
+  # - name: registry-pullsecrets
 nameOverride: ""
 fullnameOverride: ""
 
@@ -39,7 +39,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  clusterIP: 10.43.129.34
+  clusterIP: 
   port: 5000
 
 ingress:
@@ -84,20 +84,18 @@ tolerations: []
 affinity: {}
 
 configuration: 
-  acapyAdminApiKey: A1SWI8ZHUDJK9erBSJjlb6BiqeZj8NIUd4pR9jfLswca338UGxYvtSGZdE
-  identityServerApiKey: ZXSKNt8akSIE0KAU6CCbgvUKavsTRHADeHinQIjq1TFrzTYyabVR4g
-  acapyAdminUrl: https://0xaeee9e9f2bc7d0b26063106cc4e9d053fb5d6520.diode.link
-  acapyAgentUrl: https://0x94549fa1dbf69c443358eb36b234b42d9368ace3.diode.link
-  aspNetCoreUrls: http://*:8080
-  certificateFileName: /controller-data/secret-key.rsa
-  identityServerUrl: https://vc-authentication-url.diode.link
+  acapyAdminApiKey: ""
+  identityServerApiKey: ""
+  acapyAdminUrl: ""
+  acapyAgentUrl: ""
+  aspNetCoreUrls: ""
+  certificateFileName: ""
+  identityServerUrl: ""
   pollInterval: 5000
   swaggerEnabled: true
   postgresql: 
     host: postgresql.default.svc.cluster.local 
-    # host: yb-tserver-service.default.svc.cluster.local 
-    port: 5433
+    port: 5432
     password: newpassword
     username: newuser
     database: databases
-    # database: vcauthn_db_20230322184115
