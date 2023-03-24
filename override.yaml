@@ -99,3 +99,92 @@ configuration:
     password: newpassword
     username: newuser
     database: databases
+
+diode:
+  # If enabled, the deployment will be created
+  enabled: false
+  replicaCount: 1
+
+  image:
+    repository: cloud.canister.io:5000/dgateled/diode-image-bullseye
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: 0.1.7
+
+  imagePullSecrets:
+    - name: registry-pullsecrets
+  nameOverride: ""
+  fullnameOverride: 
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: false
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    # Likely true if bind and false if publish
+    enabled: true
+    type: ClusterIP
+    clusterIP: 
+    port: 
+    targetPort: 
+    protocol: TCP
+
+  diodeConfiguration:
+    localServer:
+      diodeHex: ""
+      diodePinata: ""
+      diodeKeyName: ""
+      # Protocol used for the diode connection. Default: tls.
+      # Options are tcp, udp, tls
+      protocol: tcp
+      # Options are "public" and "private"
+      publishType: 
+      # Diode mode. Options are "publish", "bind", and "both"
+      mode: 
+    remoteServer:
+      # Remote diode configuration
+      remoteDiodeHex: ""
+      port: 
+      # Protocol used for the diode connection. Default: tls.
+      # Options are tcp, udp, tls
+      protocol: ""
+      # Type of connection. Default: public. 
+      # Options are "public" and "private"
+      publishType: ""
+      # Only publish for now
+      mode: ""
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  storage:
+    keepPvc: true
+    # Size of storage. Default: 20Mi
+    size: "20Mi"

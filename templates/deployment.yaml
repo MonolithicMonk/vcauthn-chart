@@ -80,6 +80,8 @@ spec:
             value: "Host={{ .Values.configuration.postgresql.host }};Port={{ .Values.configuration.postgresql.port }};Database={{ .Values.configuration.postgresql.database }};Username=$(POSTGRESQL_USERNAME);Password=$(POSTGRESQL_PASSWORD)"
           - name: SessionStorageService__ConnectionStrings_Database
             value: "Host={{ .Values.configuration.postgresql.host }};Port={{ .Values.configuration.postgresql.port }};Database={{ .Values.configuration.postgresql.database }};Username=$(POSTGRESQL_USERNAME);Password=$(POSTGRESQL_PASSWORD)"
+          - name: IdentityServer__CertificateFilename
+            value: {{ .Values.configuration.certificateFileName }}
           - name: IdentityServer__PublicOrigin
             value: {{ .Values.configuration.identityServerUrl }}
           - name: UrlShortenerService__BaseUrl

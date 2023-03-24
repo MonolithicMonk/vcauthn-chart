@@ -1,5 +1,5 @@
 # ignore local overide files for testing
-overide.yaml
+override.yaml
 
 # ignore local diode keys for testing
 YUGA
