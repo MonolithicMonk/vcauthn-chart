@@ -2,5 +2,8 @@ dependencies:
 - name: diode
   repository: file://../diode-chart/
   version: 0.1.0
-digest: sha256:5de1094682d4c393c5b888d5723d608124be91abeab46a2da3344b3f473a829c
-generated: "2023-03-23T20:32:11.784526688-05:00"
+- name: acapy
+  repository: file://../acapy-chart/
+  version: 0.1.0
+digest: sha256:e5b6a0fdee8f01f23af63b9a28bbd6d91d3745e82e9eaccf7da869d3de66ca09
+generated: "2023-04-09T11:28:43.579390145-05:00"

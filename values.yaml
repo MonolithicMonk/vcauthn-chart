@@ -83,16 +83,58 @@ tolerations: []
 
 affinity: {}
 
-configuration: 
-  acapyAdminApiKey: ""
-  identityServerApiKey: ""
-  acapyAdminUrl: ""
-  acapyAgentUrl: ""
-  aspNetCoreUrls: ""
-  certificateFileName: ""
-  identityServerUrl: ""
-  pollInterval: 5000
+configuration:
+  allowedHosts: "*"
   swaggerEnabled: true
+  apiKey: foI0vDHaHgpaGvzxAH5GapjSQaQWoszSPuoNNaDwb8F7QwfbUWJSD8pA8OvsZAz0MrsGRqrHUQCMglO04WON6EQpWyiuDNjpjdVVof8lCURCicarnlKon95Fh3bfqybubkJ8fPu12yTWVDtMlsEx38pSWVkw3eBXapVqvI4690S7JThOa8iXXzSnR8Xk46zQIGhi7xQyYS5u7P3ZqQzce2tVGiXFJPD32wrr8mLqOWPxd3PniKWFLkICKTdu6FXl
+  identityServer:
+    pollInterval: 2000
+    connectionStrings:
+      # construct a connection string
+      database: true
+    certificateFileName: /controller-data/secret-key.rsa
+    publicOrigin: "http://localhost:5000"
+    accessTokenLifeTimeSeconds: 172800
+    clients:
+      - enabled: true
+        clientId: keycloak
+        clientName: keycloak
+        allowedGrantTypes: 
+          - implicit
+          - code
+        allowedScopes:
+          - opendid
+          - profile
+          - vc_authn
+        redirectUris:
+          - http://localhost:8180/auth/realms/vc-authn/broker/vc-authn/endpoint
+        requireClientSecret: false
+        requireConsent: false
+  acapy:
+    adminUrl: 
+    apiKey: 
+    agentUrl: 
+  urlShortenerService:
+    connectionStrings:
+      # construct a connection string
+      database: true
+    baseUrl: http://localhost:5000/url
+  sessionStorageService:
+    connectionStrings:
+      # construct a connection string
+      database: true
+    sessionLifetimeInSeconds: 
+  serilog:
+    minimumLevel:
+      default: debug
+      override:
+        system: warning
+        microsoft: warning
+    writeTo: 
+      - Name: Console
+    enrich: 
+      - FromLogContext
+  aspNetCoreUrls: ""
   postgresql: 
     host: ""
     # postgresql.default.svc.cluster.local 

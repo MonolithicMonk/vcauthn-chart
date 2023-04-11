@@ -44,20 +44,6 @@ spec:
           command:
           - /bin/bash
           env:
-          - name: IdentityServer__PollInterval
-            value: {{ .Values.configuration.pollInterval | quote }}
-          - name: ApiKey
-            valueFrom:
-              secretKeyRef:
-                key: idenity-server-api-key
-                name: {{ include "vcauthn.fullname" . }}-config
-          - name: ACAPY__AdminUrl
-            value: {{ .Values.configuration.acapyAdminUrl }}
-          - name: ACAPY__AdminURLApiKey
-            valueFrom:
-              secretKeyRef:
-                key: acapy-admin-api-key
-                name: {{ include "vcauthn.fullname" . }}-config
           - name: POSTGRESQL_USERNAME
             valueFrom:
               secretKeyRef:
@@ -68,32 +54,92 @@ spec:
               secretKeyRef:
                 key: postgresql-password
                 name: {{ include "vcauthn.fullname" . }}-config
-          - name: ACAPY__AgentUrl
-            value: {{ .Values.configuration.acapyAgentUrl }}
-          - name: SwaggerEnabled
-            value: {{ .Values.configuration.swaggerEnabled | quote }}
+          - name: VC_AUTHN_PORT
+            value: {{ .Values.service.port | quote }}
           - name: ASPNETCORE_URLS
             value: {{ .Values.configuration.aspNetCoreUrls }}
+          {{- if .Values.configuration.allowedHosts }}
+          - name: AllowedHosts
+            value: {{ .Values.configuration.allowedHosts | quote }}
+          {{- end }}
+          {{- if .Values.configuration.swaggerEnabled }}
+          - name: SwaggerEnabled
+            value: {{ .Values.configuration.swaggerEnabled | quote }}
+          {{- end }}
+          {{- if .Values.configuration.allowedHosts }}
+          - name: ApiKey
+            valueFrom:
+              secretKeyRef:
+                key: api-key
+                name: {{ include "vcauthn.fullname" . }}-config
+          {{- end }}
+          {{- if .Values.configuration.identityServer.pollInterval }}
+          - name: IdentityServer__PollInterval
+            value: {{ .Values.configuration.identityServer.pollInterval | quote }}
+          {{- end }}
+          {{- if .Values.configuration.identityServer.connectionStrings.database }}
           - name: IdentityServer__ConnectionStrings__Database
             value: "Host={{ .Values.configuration.postgresql.host }};Port={{ .Values.configuration.postgresql.port }};Database={{ .Values.configuration.postgresql.database }};Username=$(POSTGRESQL_USERNAME);Password=$(POSTGRESQL_PASSWORD)"
+          {{- end }}  
+          {{- if .Values.configuration.identityServer.certificateFileName }}
+          - name: IdentityServer__CertificateFilename
+            value: {{ .Values.configuration.identityServer.certificateFileName }}
+          {{- end }}
+          {{- if .Values.configuration.identityServer.publicOrigin }}
+          - name: IdentityServer__PublicOrigin
+            value: {{ .Values.configuration.identityServer.publicOrigin }}
+          {{- end }}
+          {{- if .Values.configuration.identityServer.accessTokenLifeTimeSeconds }}
+          - name: IdentityServer__PublicOrigin
+            value: {{ .Values.configuration.identityServer.accessTokenLifeTimeSeconds | quote }}
+          {{- end }}
+          {{- if gt (len .Values.configuration.identityServer.clients) 0 }}
+          {{- include "generateEnvVarsClients" . | indent 10 }}
+          {{- end }}
+          {{- if .Values.configuration.acapy.adminUrl }}
+          - name: ACAPY__AdminUrl
+            value: {{ .Values.configuration.acapy.adminUrl }}
+          {{- end }}
+          {{- if .Values.configuration.acapy.apiKey }}
+          - name: ACAPY__AdminURLApiKey
+            valueFrom:
+              secretKeyRef:
+                key: acapy-admin-api-key
+                name: {{ include "vcauthn.fullname" . }}-config
+          {{- end }}
+          {{- if .Values.configuration.acapy.agentUrl }}
+          - name: ACAPY__AgentUrl
+            value: {{ .Values.configuration.acapy.agentUrl }}
+          {{- end }}
+          {{- if .Values.configuration.urlShortenerService.connectionStrings.database }}
           - name: UrlShortenerService__ConnectionStrings__Database
             value: "Host={{ .Values.configuration.postgresql.host }};Port={{ .Values.configuration.postgresql.port }};Database={{ .Values.configuration.postgresql.database }};Username=$(POSTGRESQL_USERNAME);Password=$(POSTGRESQL_PASSWORD)"
-          - name: SessionStorageService__ConnectionStrings_Database
-            value: "Host={{ .Values.configuration.postgresql.host }};Port={{ .Values.configuration.postgresql.port }};Database={{ .Values.configuration.postgresql.database }};Username=$(POSTGRESQL_USERNAME);Password=$(POSTGRESQL_PASSWORD)"
-          - name: IdentityServer__CertificateFilename
-            value: {{ .Values.configuration.certificateFileName }}
-          - name: IdentityServer__PublicOrigin
-            value: {{ .Values.configuration.identityServerUrl }}
+          {{- end }}
+          {{- if .Values.configuration.urlShortenerService.baseUrl }}
           - name: UrlShortenerService__BaseUrl
-            value: {{ .Values.configuration.identityServerUrl }}/url
+            value: {{ .Values.configuration.urlShortenerService.baseUrl }}
+          {{- end }}
+          {{- if .Values.configuration.sessionStorageService.connectionStrings.database }}
+          - name: SessionStorageService__ConnectionStrings__Database
+            value: "Host={{ .Values.configuration.postgresql.host }};Port={{ .Values.configuration.postgresql.port }};Database={{ .Values.configuration.postgresql.database }};Username=$(POSTGRESQL_USERNAME);Password=$(POSTGRESQL_PASSWORD)"
+          {{- end }}
+          {{- if .Values.configuration.sessionStorageService.sessionLifetimeInSeconds }}
+          - name: SessionStorageService__SessionLifetimeInSeconds
+            value: {{ .Values.configuration.sessionStorageService.sessionLifetimeInSeconds | quote }}
+          {{- end }}
+          {{- include "generateEnvVarsLogs" . | indent 10 }}
           livenessProbe:
             httpGet:
               path: /
               port: http
+            initialDelaySeconds: 25
+            periodSeconds: 10  
           readinessProbe:
             httpGet:
               path: /
               port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10  
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

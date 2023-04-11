@@ -30,3 +30,7 @@ dependencies:
     version: 0.1.0
     repository: file://../diode-chart/
     condition: diode.enabled
+  - name: acapy
+    version: 0.1.0
+    repository: file://../acapy-chart/
+    condition: acapy.enabled
