@@ -4,3 +4,6 @@ override.yaml
 # ignore local diode keys for testing
 YUGA
 YUGA.bck
+
+# Ignore scripts directory
+scripts/

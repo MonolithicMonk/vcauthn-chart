@@ -90,7 +90,7 @@ spec:
             value: {{ .Values.configuration.identityServer.publicOrigin }}
           {{- end }}
           {{- if .Values.configuration.identityServer.accessTokenLifeTimeSeconds }}
-          - name: IdentityServer__PublicOrigin
+          - name: IdentityServer__AccessTokenLifeTimeSeconds
             value: {{ .Values.configuration.identityServer.accessTokenLifeTimeSeconds | quote }}
           {{- end }}
           {{- if gt (len .Values.configuration.identityServer.clients) 0 }}
@@ -128,6 +128,8 @@ spec:
             value: {{ .Values.configuration.sessionStorageService.sessionLifetimeInSeconds | quote }}
           {{- end }}
           {{- include "generateEnvVarsLogs" . | indent 10 }}
+          - name: Serilog__WriteTo__0__Args__outputTemplate
+            value: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level}] [{SourceContext}] [{EventId}] {Message}{NewLine}{Exception}"
           livenessProbe:
             httpGet:
               path: /
